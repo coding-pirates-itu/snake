@@ -6,17 +6,17 @@ namespace Snake.Models;
 
 public abstract class ItemVm : DependencyObject
 {
-    #region Coordinates dependency property
+    #region Point dependency property
 
-    public static readonly DependencyProperty CoordinatesProperty = DependencyProperty.Register(
-        nameof(Coordinates), typeof(ObservableCollection<Coordinate>), typeof(ItemVm),
-        new PropertyMetadata(null));
+    public static readonly DependencyProperty PointProperty = DependencyProperty.Register(
+        nameof(Point), typeof(Coordinate), typeof(ItemVm),
+        new PropertyMetadata(default(Coordinate)));
 
 
-    public ObservableCollection<Coordinate> Coordinates
+    public Coordinate Point
     {
-        get => (ObservableCollection<Coordinate>) GetValue(CoordinatesProperty);
-        set => SetValue(CoordinatesProperty, value);
+        get => (Coordinate) GetValue(PointProperty);
+        set => SetValue(PointProperty, value);
     }
 
     #endregion
@@ -26,19 +26,8 @@ public abstract class ItemVm : DependencyObject
 
     public ItemVm(int x, int y)
     {
-        Coordinates = [];
-        Coordinates.Add(new Coordinate(x, y));
+        Point = new Coordinate(x, y);
     }
-
-    #endregion
-
-
-    #region API
-
-    /// <summary>
-    /// Check whether the given coordinate is "inside" the object.
-    /// </summary>
-    public bool Overlaps(int x, int y) => Coordinates.Contains(new Coordinate(x, y));
 
     #endregion
 }

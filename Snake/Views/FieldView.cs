@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using Snake.Models;
 
 namespace Snake.Views;
 
@@ -75,6 +76,27 @@ public sealed class FieldView : ItemsControl
     public FieldView()
     {
         SizeParameterChanged(this, default);
+    }
+
+    #endregion
+
+
+    #region Layout
+
+    protected override Size MeasureOverride(Size constraint)
+    {
+        foreach (var item in Items.Cast<ItemVm>())
+        {
+            var el = ItemContainerGenerator.ContainerFromItem(item);
+            var x = (double) item.Point.X * CellWidth;
+            var y = (double) item.Point.Y * CellHeight;
+            el.SetValue(Canvas.LeftProperty, x);
+            el.SetValue(Canvas.TopProperty, y);
+
+            ((FrameworkElement) el).Measure(constraint);
+        }
+
+        return base.MeasureOverride(constraint);
     }
 
     #endregion

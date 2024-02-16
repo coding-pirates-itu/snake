@@ -26,12 +26,16 @@
             <TextBlock FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"
                        Text="SNAKE" />
             <TextBlock FontSize="24" HorizontalAlignment="Right" Text="{Binding Points}"/>
+            <Border Height="1" VerticalAlignment="Bottom" Background="Beige"/>
         </Grid>
 
         <views:FieldView x:Name="Field" Grid.Row="1" Background="#4c432a"
                          FieldWidth="{Binding Width}"
                          FieldHeight="{Binding Height}"
-                         ItemsSource="{Binding Items}"/>
+                         ItemsPanel="{StaticResource CanvasPanel}"
+                         ItemsSource="{Binding Items}"
+                         ItemContainerStyle="{StaticResource ContainerStyle}"
+                         ItemTemplateSelector="{StaticResource ItemSelector}"/>
 
         <DockPanel Grid.Column="1" Grid.Row="1" LastChildFill="False">
             <TextBlock DockPanel.Dock="Top">

@@ -1,10 +1,11 @@
-﻿namespace Snake.Models
+﻿namespace Snake.Models;
+
+
+public enum Directions
 {
-    public enum Directions
-    {
-        North,
-        South,
-        West,
-        East
-    }
+    End,
+    North,
+    South,
+    West,
+    East
 }

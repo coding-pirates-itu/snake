@@ -1,12 +1,14 @@
-﻿
-namespace Snake.Models;
+﻿namespace Snake.Models;
 
 
 public sealed class SnakeVm : ItemVm
 {
+    public List<Coordinate> Coordinates = [];
+
+
     public SnakeVm(int x, int y, int length, Directions dir) : base(x, y)
     {
-        while (length > 1)
+        while (length > 0)
         {
             switch (dir)
             {
@@ -21,4 +23,10 @@ public sealed class SnakeVm : ItemVm
             length--;
         }
     }
+
+
+    /// <summary>
+    /// Check whether the given coordinate is "inside" the object.
+    /// </summary>
+    public bool Overlaps(int x, int y) => Coordinates.Contains(new Coordinate(x, y));
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace Snake.Models;
@@ -57,13 +57,13 @@ public sealed class FieldVm : DependencyObject
     #region Items dependency property
 
     public static readonly DependencyProperty ItemsProperty = DependencyProperty.
-        Register(nameof(Items), typeof(BindingList<ItemVm>), typeof(FieldVm),
+        Register(nameof(Items), typeof(ObservableCollection<ItemVm>), typeof(FieldVm),
         new PropertyMetadata(null));
 
 
-    public BindingList<ItemVm> Items
+    public ObservableCollection<ItemVm> Items
     {
-        get => (BindingList<ItemVm>) GetValue(ItemsProperty);
+        get => (ObservableCollection<ItemVm>) GetValue(ItemsProperty);
         set => SetValue(ItemsProperty, value);
     }
 
@@ -121,11 +121,11 @@ public sealed class FieldVm : DependencyObject
     {
         Points = 0;
 
-        var dir = (Directions) Random.Shared.Next(0, 4);
+        var dir = (Directions) Random.Shared.Next(1, 5);
         Snake = new SnakeVm(Width / 2, Height / 2, InitialLength, dir);
 
         Items.Clear();
-        Items.Add(Snake);
+        MergeSnake(SetupSnake());
 
         for (var i = 0; i < Width; i++)
         {
@@ -138,7 +138,90 @@ public sealed class FieldVm : DependencyObject
             }
             while (Snake.Overlaps(x, y));
 
-            Items.Add(new FoodItem(x, y));
+            Items.Add(new FoodItemVm(x, y));
+        }
+    }
+
+    #endregion
+
+
+    #region Utility
+
+    private List<SnakePieceVm> SetupSnake()
+    {
+        var pieces = new List<SnakePieceVm>();
+
+        for (var pieceIdx = 0; pieceIdx < Snake.Coordinates.Count; pieceIdx++)
+        {
+            var coord = Snake.Coordinates[pieceIdx];
+
+            var headDir = Directions.End;
+
+            if (pieceIdx < Snake.Coordinates.Count - 1)
+            {
+                var next = Snake.Coordinates[pieceIdx + 1];
+                headDir = Math.Sign(coord.Y - next.Y) * 4 + Math.Sign(coord.X - next.X) switch
+                {
+                    4 => Directions.North,
+                    -4 => Directions.South,
+                    -1 => Directions.West,
+                    1 => Directions.East,
+                    _ => Directions.End
+                };
+            }
+
+            var tailDir = Directions.End;
+
+            if (pieceIdx > 0)
+            {
+                var prev = Snake.Coordinates[pieceIdx - 1];
+                tailDir = Math.Sign(coord.Y - prev.Y) * 4 + Math.Sign(coord.X - prev.X) switch
+                {
+                    4 => Directions.North,
+                    -4 => Directions.South,
+                    -1 => Directions.West,
+                    1 => Directions.East,
+                    _ => Directions.End
+                };
+            }
+
+            pieces.Add(new SnakePieceVm(coord.X, coord.Y, headDir, tailDir));
+        }
+
+        return pieces;
+    }
+
+
+    private void MergeSnake(List<SnakePieceVm> snake)
+    {
+        var field = Items.OfType<SnakePieceVm>().ToList();
+
+        // Delete gone pieces
+        foreach (var onField in field)
+        {
+            var inSnake = snake.Any(
+                p => p.Point == onField.Point &&
+                     p.HeadDirection == onField.HeadDirection &&
+                     p.TailDirection == onField.TailDirection);
+            
+            if (!inSnake)
+            {
+                Items.Remove(onField);
+            }
+        }
+
+        // Add new pieces
+        foreach (var onSnake in snake)
+        {
+            var onField = field.Any(
+                p => p.Point == onSnake.Point &&
+                     p.HeadDirection == onSnake.HeadDirection &&
+                     p.TailDirection == onSnake.TailDirection);
+            
+            if (!onField)
+            {
+                Items.Add(onSnake);
+            }
         }
     }
 
